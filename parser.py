@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 from chemkin import *
 import numpy as np
 
-def parseXML(file):
+def parseXML(file, T):
     """
     Parses the XML file containing reactions information. Returns reaction coefficients and reaction rates.
     
@@ -41,54 +41,53 @@ def parseXML(file):
     root = tree.getroot()
 
     # initialize variables
-    T = 1500
-    species_dict = {'reactants':{}, 'products':{}}
-    reaction_rate = []
-    reactant_coeffs = []
-    product_coeffs = []
+    reactions_dict = {'reactants': {}, 'products': {}, 'rates': []}
+    coeffs_dict = []
+
     for species in root.find('phase').find('speciesArray').text.split():
-        species_dict['reactants'][species] = []
-        species_dict['products'][species] = []
-    v1 = []
-    v2 = []
+        reactions_dict['reactants'][species] = []
+        reactions_dict['products'][species] = []
 
     for child in root.find('reactionData').findall('reaction'):
 
         # Parse reactants and products
-        species = list(species_dict['reactants'].keys())
+        species = list(reactions_dict['products'].keys())
         for reactant in child.find('reactants').text.split():
             key, value = reactant.split(':')
-            species_dict['reactants'][key].append(float(value))
+            reactions_dict['reactants'][key].append(float(value))
             species.remove(key)
         for reactant in species:
-            species_dict['reactants'][reactant].append(0.0)
+            reactions_dict['reactants'][reactant].append(0.0)
 
-        species = list(species_dict['products'].keys())
+        species = list(reactions_dict['products'].keys())
         for product in child.find('products').text.split():
             key, value = product.split(':')
-            species_dict['products'][key].append(float(value))
+            reactions_dict['products'][key].append(float(value))
             species.remove(key)
         for product in species:
-            species_dict['products'][product].append(0.0)
+            reactions_dict['products'][product].append(0.0)
 
         # Parse reaction coefficients
         coeffs = child.find('rateCoeff')
         if coeffs.find('Arrhenius'):
-            coeffs_dict['A'] = float(coeffs.find('Arrhenius').find('A').text)
-            coeffs_dict['E'] = float(coeffs.find('Arrhenius').find('E').text)
-            reaction_rate.append(chemkin.arrhenius(coeffs_dict['A'], coeffs_dict['E'], T))
+            new_dict = {}
+            new_dict['type'] = 'Arrhenius'
+            new_dict['A'] = float(coeffs.find('Arrhenius').find('A').text)
+            new_dict['E'] = float(coeffs.find('Arrhenius').find('E').text)
+            reactions_dict['rates'].append(new_dict)
+            
         if coeffs.find('modifiedArrhenius'):
-            coeffs_dict['A'] = float(coeffs.find('modifiedArrhenius').find('A').text)
-            coeffs_dict['E'] = float(coeffs.find('modifiedArrhenius').find('E').text)
-            coeffs_dict['b'] = float(coeffs.find('modifiedArrhenius').find('b').text)
-            reaction_rate.append(chemkin.modified(coeffs_dict['A'], coeffs_dict['b'], coeffs_dict['E'], T))
-        if coeffs.find('Constant'):
-            coeffs_dict['k'] = float(coeffs.find('Constant').find('k').text)
-            reaction_rate.append(chemkin.constant(coeffs_dict['k']))
+            new_dict = {}
+            new_dict['type'] = 'modifiedArrhenius'
+            new_dict['A'] = float(coeffs.find('modifiedArrhenius').find('A').text)
+            new_dict['E'] = float(coeffs.find('modifiedArrhenius').find('E').text)
+            new_dict['b'] = float(coeffs.find('modifiedArrhenius').find('b').text)
+            reactions_dict['rates'].append(new_dict)
 
-    for key, value in species_dict['reactants'].items():
-        v1.append(value)
-    for key, value in species_dict['products'].items():
-        v2.append(value)
-        
-    return v1, v2, reaction_rate
+        if coeffs.find('Constant'):
+            new_dict = {}
+            new_dict['type'] = 'Constant'
+            new_dict['k'] = float(coeffs.find('Constant').find('k').text)
+            reactions_dict['rates'].append(new_dict)
+
+    return reactions_dict
