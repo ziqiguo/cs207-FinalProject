@@ -5,7 +5,7 @@ The `Chemical Kinetocs` Library [![Build Status](https://travis-ci.org/G8-CS207F
 
 Introduction
 ------------
-Our package is to compute the reaction rate of chemical reactions. We take inputs of chemical reactions from an .xml file. We extract the parameters of each chemical reactions. We have functions to calculate three types of reaction rate coefficients: Constant reaction rate coefficients, Arrhenius reaction rate coefficients, Modified Arrhenius (a.k.a Kooij) reaction rate coefficients. We package can handle elementary reactions as well as irreversible reactions. Our package can take an arbitary number of species and reactions.
+Our package is to compute the reaction rate of chemical reactions. We take inputs of chemical reactions from an .xml file. We extract the parameters of each chemical reactions. We have functions to calculate three types of reaction rate coefficients: Constant reaction rate coefficients, Arrhenius reaction rate coefficients, Modified Arrhenius (a.k.a Kooij) reaction rate coefficients. Our package can handle elementary reactions as well as irreversible reactions. It can also handle an arbitary number of species and reactions.
 
 
 Installation
