@@ -11,8 +11,11 @@ Our package is to compute the reaction rate of chemical reactions. We take input
 Installation
 ------------
 Download from https://github.com/G8-CS207F17/cs207-FinalProject. 
+
 Packages need to be installed: numpy, xml, pytest (pip install numpy xml pytest)
+
 run unit test suites: pytest --cov --cov-report term-missing
+
 run doctest suites: pytest --doctest-modules --cov --cov-report term-missing
 
 
