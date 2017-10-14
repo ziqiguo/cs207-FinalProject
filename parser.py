@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 from chemkin import *
 import numpy as np
 
-def parseXML(file, T):
+def parseXML(file):
     """
     Parses the XML file containing reactions information. Returns reaction coefficients and reaction rates.
     

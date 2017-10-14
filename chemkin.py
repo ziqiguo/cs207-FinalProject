@@ -1,14 +1,10 @@
 import numpy as np
 
 class chemkin:
-    def __init__():
+    def __init__(self):
         self.r = 8.314
-        self.params = {'a': [], 'b':[], 'e':[], 'k':[], 't': [], 'x': [], 'v1': [], 'v2': []}
 
-    def update(item, value):
-        self.params[item] = value
-
-    def constant(k):
+    def constant(self, k):
         """Returns the constant reaction rate coefficient.
 
         INPUTS
@@ -30,7 +26,7 @@ class chemkin:
             return "Error: unable to convert k to float!"
         return k
 
-    def arrhenius(a,e,t):
+    def arrhenius(self, a, e, t):
         """Returns the Arrhenius reaction rate coefficient.
 
         INPUTS
@@ -60,7 +56,7 @@ class chemkin:
             raise ValueError("Temperature t is non-positive!")
         return a*np.exp(-e/(self.r*t))
 
-    def modified(a,b,e,t):
+    def modified(self, a, b, e, t):
         """Returns the modified Arrhenius reaction rate coefficient.
 
         INPUTS
@@ -94,7 +90,18 @@ class chemkin:
             raise ValueError("Temperature t is non-positive!")
         return a*(t**b)*np.exp(-e/(self.r*t))
 
-    def progress_u(k,x,v):
+    def reaction_rates(self, rates, T):
+        k = []
+        for reaction in rates:
+            if reaction['type'] == 'Arrhenius':
+                k.append(self.arrhenius(reaction['A'], reaction['E'], T))
+            elif reaction['type'] == 'modifiedArrhenius':
+                k.append(self.modified(reaction['A'], reaction['b'], reaction['E'], T))
+            elif reaction['type'] == 'Constant':
+                k.append(self.constant(reaction['k']))
+        return k
+
+    def progress_u(self, k, x, v):
         """Returns the progress rate of a single reaction.
 
         INPUTS
@@ -120,7 +127,7 @@ class chemkin:
             p = p * (x[i]**v[i])
         return k*p
 
-    def progress(k,x,v1):
+    def progress(self, k, x, v1):
         """Returns the progress rate of a system of reactions.
 
         INPUTS
@@ -149,7 +156,7 @@ class chemkin:
             w.append(self.progress_u(k[i],x,v1[i]))
         return w
 
-    def reaction(k,x,v1,v2):
+    def reaction(self, k, x, v1, v2):
         """Returns the reaction rate of a system of reactions for each specie.
 
         INPUTS
