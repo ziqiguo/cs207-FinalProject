@@ -91,6 +91,22 @@ class chemkin:
         return a*(t**b)*np.exp(-e/(self.r*t))
 
     def reaction_rates(self, rates, T):
+        """Calculates reaction rates for a list of reactions.
+        
+        INPUTS
+        =======
+        rates: dictionary containing reaction rate type and all needed parameters
+        T: int or float, environment temperature
+
+        RETURNS
+        =======
+        k: list of floats, has length m where m is the number of reactions
+
+        EXAMPLES
+        >> reaction_rates([{'type': 'Arrhenius', 'A': 35200000000.0, 'E': 71400.0}, {'type': 'modifiedArrhenius', 'A': 0.0506, 'E': 26300.0, 'b': 2.7}, {'type': 'Constant', 'k': 1000.0}], 1500)
+        [114837571.22536749, 2310555.9199959813, 1000.0]
+        """
+
         k = []
         for reaction in rates:
             if reaction['type'] == 'Arrhenius':
