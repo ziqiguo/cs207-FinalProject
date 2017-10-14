@@ -2,7 +2,11 @@ import numpy as np
 
 class chemkin:
     def __init__():
-        self.params = {'A': 0, 'b':0, 'e':0, 'k':1, 'R': 8.314, 'T': 300}
+        self.r = 8.314
+        self.params = {'a': [], 'b':[], 'e':[], 'k':[], 't': [], 'x': [], 'v1': [], 'v2': []}
+
+    def update(item, value):
+        self.params[item] = value
 
     def constant(k):
         """Returns the constant reaction rate coefficient.
@@ -54,7 +58,7 @@ class chemkin:
             raise ValueError("Arrhenius prefactor a is non-positive!")
         if t <= 0:
             raise ValueError("Temperature t is non-positive!")
-        return a*np.exp(-e/(8.314*t))
+        return a*np.exp(-e/(self.r*t))
 
     def modified(a,b,e,t):
         """Returns the modified Arrhenius reaction rate coefficient.
@@ -88,10 +92,9 @@ class chemkin:
             raise ValueError("b is complex number!")
         if t <= 0:
             raise ValueError("Temperature t is non-positive!")
-        return a*(t**b)*np.exp(-e/(8.314*t))
+        return a*(t**b)*np.exp(-e/(self.r*t))
 
-
-    def progress(k,x,v):
+    def progress_u(k,x,v):
         """Returns the progress rate of a single reaction.
 
         INPUTS
@@ -117,7 +120,7 @@ class chemkin:
             p = p * (x[i]**v[i])
         return k*p
 
-    def progress_m(k,x,v1):
+    def progress(k,x,v1):
         """Returns the progress rate of a system of reactions.
 
         INPUTS
@@ -143,7 +146,7 @@ class chemkin:
         for i in range(m):
             if len(v1[i]) != n:
                 raise ValueError("Error in dimension of v values!")
-            w.append(progress(k[i],x,v1[i]))
+            w.append(self.progress_u(k[i],x,v1[i]))
         return w
 
     def reaction(k,x,v1,v2):
@@ -165,7 +168,7 @@ class chemkin:
         >>> reaction([10,10],[1,2,1],[[1,2,0],[0,0,2]],[[0,0,1],[1,2,0]])
         [-30, -60, 20]
         """
-        w = progress_m(k,x,v1)
+        w = self.progress(k,x,v1)
         f = []
         m = len(w)
         if m != len(k):
