@@ -209,20 +209,21 @@ class chemkin:
         >>> chemkin().progress([10,10],[1,2,1],[[1,2,0],[2,0,2]])
         [40, 10]
         """
+
         m = len(self.v1)
         if m != len(self.k):
             raise ValueError("Number of k does not much number of reactions!")
 
-        for lst in v1:
+        for lst in self.v1:
             if any(isinstance(d, complex) for d in lst) == True:
                 raise ValueError('Complex value in reactant coefficient detected!')
 
         n = len(x)
         w = []
         for i in range(m):
-            if len(v1[i]) != n:
+            if len(self.v1[i]) != n:
                 raise ValueError("Not enough coefficient values! Check the dimension of coefficient matrix.")
-            w.append(self.progress_u(k[i],x,v1[i]))
+            w.append(self.progress_reaction(self.k[i],x,self.v1[i]))
         return w
 
     def reaction_rates(self, x, T):
@@ -244,13 +245,15 @@ class chemkin:
         >>> chemkin().reaction([10,10],[1,2,1],[[1,2,0],[0,0,2]],[[0,0,1],[1,2,0]])
         [-30, -60, 20]
         """
-        if np.array(v1).shape != np.array(v2).shape:
+        self.k_system(T)
+
+        if np.array(self.v1).shape != np.array(self.v2).shape:
             raise ValueError("Dimensions of coefficients of reactants and products do not match.")
-        for lst in v2:
+        for lst in self.v2:
             if any(isinstance(d, complex) for d in lst) == True:
                 raise ValueError('Complex value in product coefficient detected!')
 
-        w = self.progress(k,x,v1)
+        w = self.progress_system(x)
         f = []
         m = len(w)
         if m != len(self.k):
@@ -259,9 +262,9 @@ class chemkin:
         for i in range(n):
             f.append(0)
             for j in range(m):
-                if len(v1[j]) != n or len(v2[j]) != n:
+                if len(self.v1[j]) != n or len(self.v2[j]) != n:
                     raise ValueError("Not enough coefficient values! Check the dimension of coefficient matrices.")
-                f[i] = f[i] + ((v2[j][i]-v1[j][i])*w[j])
+                f[i] = f[i] + ((self.v2[j][i]-self.v1[j][i])*w[j])
         return f
 
 
