@@ -17,7 +17,7 @@ class chemkin:
 
         EXAMPLES
         =========
-        >>> constant(10.0)
+        >>> chemkin().constant(10.0)
         10.0
         """
         try:
@@ -41,7 +41,7 @@ class chemkin:
 
         EXAMPLES
         =========
-        >>> arrhenius(10,10,10)
+        >>> chemkin().arrhenius(10,10,10)
         8.8667297841210573
         """
         try:
@@ -51,9 +51,9 @@ class chemkin:
         except TypeError:
             return "Error: unable to convert all parameters to float!"
         if a <= 0:
-            raise ValueError("Arrhenius prefactor a is non-positive!")
+            raise ValueError("The Arrhenius prefactor A must be positive")
         if t <= 0:
-            raise ValueError("Temperature t is non-positive!")
+            raise ValueError("The temperature T must be positive (assume a Kelvin scale)")
         return a*np.exp(-e/(self.r*t))
 
     def modified(self, a, b, e, t):
@@ -72,7 +72,7 @@ class chemkin:
 
         EXAMPLES
         =========
-        >>> modified(10**7,0.5,10**3,10**2)
+        >>> chemkin().modified(10**7,0.5,10**3,10**2)
         30035490.889639609
         """
         try:
@@ -83,19 +83,19 @@ class chemkin:
         except TypeError:
             return "Error: unable to convert all parameters to float!"
         if a <= 0:
-            raise ValueError("Arrhenius prefactor a is non-positive!")
+            raise ValueError("The Arrhenius prefactor A must be positive")
         if isinstance(b, complex):
-            raise ValueError("b is complex number!")
+            raise ValueError("The modified Arrhenius parameter b must be real")
         if t <= 0:
-            raise ValueError("Temperature t is non-positive!")
+            raise ValueError("The temperature T must be positive (assume a Kelvin scale)")
         return a*(t**b)*np.exp(-e/(self.r*t))
 
     def reaction_rates(self, rates, T):
         """Calculates reaction rates for a list of reactions.
-        
+
         INPUTS
         =======
-        rates: dictionary containing reaction rate type and all needed parameters
+        rates: dictionary containing reaction rate type and all parameters pertaining to set of reactions
         T: int or float, environment temperature
 
         RETURNS
@@ -103,7 +103,7 @@ class chemkin:
         k: list of floats, has length m where m is the number of reactions
 
         EXAMPLES
-        >> reaction_rates([{'type': 'Arrhenius', 'A': 35200000000.0, 'E': 71400.0}, {'type': 'modifiedArrhenius', 'A': 0.0506, 'E': 26300.0, 'b': 2.7}, {'type': 'Constant', 'k': 1000.0}], 1500)
+        >> chemkin().reaction_rates([{'type': 'Arrhenius', 'A': 35200000000.0, 'E': 71400.0}, {'type': 'modifiedArrhenius', 'A': 0.0506, 'E': 26300.0, 'b': 2.7}, {'type': 'Constant', 'k': 1000.0}], 1500)
         [114837571.22536749, 2310555.9199959813, 1000.0]
         """
 
@@ -132,11 +132,18 @@ class chemkin:
 
         EXAMPLES
         =========
-        >>> progress(10,[1,2,3],[2,1,0])
+        >>> chemkin().progress_u(10,[1,2,3],[2,1,0])
         20
         """
         if len(x) != len(v):
-            raise ValueError("Length of x and v does not match!")
+            raise ValueError("Dimensions of concentration and coefficients do not match!")
+        if k==0:
+            raise ValueError("Reaction rate of reaction is 0. No reaction.")
+        if x==[0]*len(x):
+            raise ValueError("All reactant concentrations for reaction are 0.")
+        if list(v)==[0]*len(v):
+            raise ValueError("All stoich coefficients for reaction are 0.")
+
         n = len(x)
         p = 1
         for i in range(n):
@@ -158,17 +165,22 @@ class chemkin:
 
         EXAMPLES
         =========
-        >>> progress_m([10,10],[1,2,1],[[1,2,0],[2,0,2]])
+        >>> chemkin().progress([10,10],[1,2,1],[[1,2,0],[2,0,2]])
         [40, 10]
         """
         m = len(v1)
         if m != len(k):
             raise ValueError("Number of k does not much number of reactions!")
+
+        for lst in v1:
+            if any(isinstance(d, complex) for d in lst) == True:
+                raise ValueError('Complex value in reactant coefficient detected!')
+
         n = len(x)
         w = []
         for i in range(m):
             if len(v1[i]) != n:
-                raise ValueError("Error in dimension of v values!")
+                raise ValueError("Not enough coefficient values! Check the dimension of coefficient matrix.")
             w.append(self.progress_u(k[i],x,v1[i]))
         return w
 
@@ -188,9 +200,15 @@ class chemkin:
 
         EXAMPLES
         =========
-        >>> reaction([10,10],[1,2,1],[[1,2,0],[0,0,2]],[[0,0,1],[1,2,0]])
+        >>> chemkin().reaction([10,10],[1,2,1],[[1,2,0],[0,0,2]],[[0,0,1],[1,2,0]])
         [-30, -60, 20]
         """
+        if np.array(v1).shape != np.array(v2).shape:
+            raise ValueError("Dimensions of coefficients of reactants and products do not match.")
+        for lst in v2:
+            if any(isinstance(d, complex) for d in lst) == True:
+                raise ValueError('Complex value in product coefficient detected!')
+
         w = self.progress(k,x,v1)
         f = []
         m = len(w)
@@ -201,7 +219,7 @@ class chemkin:
             f.append(0)
             for j in range(m):
                 if len(v1[j]) != n or len(v2[j]) != n:
-                    raise ValueError("Error in dimension of v values!")
+                    raise ValueError("Not enough coefficient values! Check the dimension of coefficient matrices.")
                 f[i] = f[i] + ((v2[j][i]-v1[j][i])*w[j])
         return f
 
