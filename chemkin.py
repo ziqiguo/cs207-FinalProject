@@ -24,8 +24,8 @@ class chemkin:
         v1: coefficients of reactants
         v2: coefficients of products
 
-        EXAMPLES
-        ========
+        # EXAMPLES
+        # ========
 
         """
         reactions_dict = parseXML('rxns.xml')
@@ -54,10 +54,10 @@ class chemkin:
         ========
         k: float, the constant reaction rate coefficient
 
-        EXAMPLES
-        =========
-        >>> chemkin().constant(10.0)
-        10.0
+        # EXAMPLES
+        # =========
+        # >>> chemkin().constant(10.0)
+        # 10.0
         """
         try:
             k = float(k)
@@ -78,10 +78,10 @@ class chemkin:
         ========
         k: float, the Arrhenius reaction rate coefficient
 
-        EXAMPLES
-        =========
-        >>> chemkin().arrhenius(10,10,10)
-        8.8667297841210573
+        # EXAMPLES
+        # =========
+        # >>> chemkin().arrhenius(10,10,10)
+        # 8.8667297841210573
         """
         try:
             a = float(a)
@@ -109,10 +109,10 @@ class chemkin:
         ========
         k: float, the modified Arrhenius reaction rate coefficient
 
-        EXAMPLES
-        =========
-        >>> chemkin().modified(10**7,0.5,10**3,10**2)
-        30035490.889639609
+        # EXAMPLES
+        # =========
+        # >>> chemkin().modified(10**7,0.5,10**3,10**2)
+        # 30035490.889639609
         """
         try:
             a = float(a)
@@ -142,9 +142,9 @@ class chemkin:
         None. Class attributes are added:
         k: list of floats, has length m where m is the number of reactions
 
-        EXAMPLES
-        >> chemkin().reaction_rates([{'type': 'Arrhenius', 'A': 35200000000.0, 'E': 71400.0}, {'type': 'modifiedArrhenius', 'A': 0.0506, 'E': 26300.0, 'b': 2.7}, {'type': 'Constant', 'k': 1000.0}], 1500)
-        [114837571.22536749, 2310555.9199959813, 1000.0]
+        # EXAMPLES
+        # >> chemkin().reaction_rates([{'type': 'Arrhenius', 'A': 35200000000.0, 'E': 71400.0}, {'type': 'modifiedArrhenius', 'A': 0.0506, 'E': 26300.0, 'b': 2.7}, {'type': 'Constant', 'k': 1000.0}], 1500)
+        # [114837571.22536749, 2310555.9199959813, 1000.0]
         """
         if self.rates is None:
             raise ValueError("Rates not initialized. Please call Chemkin().parse() to parse XML first.")
@@ -171,10 +171,10 @@ class chemkin:
         ========
         progress rate: float, the progress rate of a reaction
 
-        EXAMPLES
-        =========
-        >>> chemkin().progress_u(10,[1,2,3],[2,1,0])
-        20
+        # EXAMPLES
+        # =========
+        # >>> chemkin().progress_u(10,[1,2,3],[2,1,0])
+        # 20
         """
         if len(x) != len(v):
             raise ValueError("Dimensions of concentration and coefficients do not match!")
@@ -204,10 +204,10 @@ class chemkin:
         ========
         progress rate: list of progress rate of each reaction
 
-        EXAMPLES
-        =========
-        >>> chemkin().progress([10,10],[1,2,1],[[1,2,0],[2,0,2]])
-        [40, 10]
+        # EXAMPLES
+        # =========
+        # >>> chemkin().progress([10,10],[1,2,1],[[1,2,0],[2,0,2]])
+        # [40, 10]
         """
 
         m = len(self.v1)
@@ -240,10 +240,10 @@ class chemkin:
         ========
         reaction rate: list of rate of consumption or formation of specie
 
-        EXAMPLES
-        =========
-        >>> chemkin().reaction([10,10],[1,2,1],[[1,2,0],[0,0,2]],[[0,0,1],[1,2,0]])
-        [-30, -60, 20]
+        # EXAMPLES
+        # =========
+        # >>> chemkin().reaction([10,10],[1,2,1],[[1,2,0],[0,0,2]],[[0,0,1],[1,2,0]])
+        # [-30, -60, 20]
         """
         self.k_system(T)
 
@@ -255,15 +255,10 @@ class chemkin:
 
         w = self.progress_system(x)
         f = []
-        m = len(w)
-        if m != len(self.k):
-            raise ValueError("Number of k does not much number of reactions!")
-        n = len(x)
-        for i in range(n):
+
+        for i in range(len(x)):
             f.append(0)
-            for j in range(m):
-                if len(self.v1[j]) != n or len(self.v2[j]) != n:
-                    raise ValueError("Not enough coefficient values! Check the dimension of coefficient matrices.")
+            for j in range(len(w)):
                 f[i] = f[i] + ((self.v2[j][i]-self.v1[j][i])*w[j])
         return f
 
