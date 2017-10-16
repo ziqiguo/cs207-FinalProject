@@ -1,10 +1,49 @@
 import numpy as np
+from parser import *
 
 class chemkin:
     def __init__(self):
         self.r = 8.314
+        self.v1 = None
+        self.v2 = None
+        self.rates = None
+        self.k = None
 
-    def constant(self, k):
+    def parse(self, file):
+        """Calls parser and stores instance attributes
+        
+        INPUTS
+        =======
+        file: string, path of XML file to be parsed
+
+        RETURNS
+        =======
+        None. Instance attributes added:
+        rates: dictionary of reaction rate coefficients information
+               need to call reaction_rate() to calculate list k
+        v1: coefficients of reactants
+        v2: coefficients of products
+
+        EXAMPLES
+        ========
+
+        """
+        reactions_dict = parseXML('rxns.xml')
+        self.rates = reactions_dict['rates']
+
+        self.v1 = []
+        self.v2 = []
+        for key, value in reactions_dict['reactants'].items():
+            self.v1.append(value)
+        for key, value in reactions_dict['products'].items():
+            self.v2.append(value)
+
+        self.v1 = np.array(self.v1).T
+        self.v2 = np.array(self.v2).T
+
+
+
+    def k_constant(self, k):
         """Returns the constant reaction rate coefficient.
 
         INPUTS
@@ -26,7 +65,7 @@ class chemkin:
             return "Error: unable to convert k to float!"
         return k
 
-    def arrhenius(self, a, e, t):
+    def k_arrhenius(self, a, e, t):
         """Returns the Arrhenius reaction rate coefficient.
 
         INPUTS
@@ -56,7 +95,7 @@ class chemkin:
             raise ValueError("Temperature t is non-positive!")
         return a*np.exp(-e/(self.r*t))
 
-    def modified(self, a, b, e, t):
+    def k_modified(self, a, b, e, t):
         """Returns the modified Arrhenius reaction rate coefficient.
 
         INPUTS
@@ -90,34 +129,35 @@ class chemkin:
             raise ValueError("Temperature t is non-positive!")
         return a*(t**b)*np.exp(-e/(self.r*t))
 
-    def reaction_rates(self, rates, T):
+    def k_system(self, T):
         """Calculates reaction rates for a list of reactions.
         
         INPUTS
         =======
-        rates: dictionary containing reaction rate type and all needed parameters
         T: int or float, environment temperature
 
         RETURNS
         =======
+        None. Class attributes are added:
         k: list of floats, has length m where m is the number of reactions
 
         EXAMPLES
         >> reaction_rates([{'type': 'Arrhenius', 'A': 35200000000.0, 'E': 71400.0}, {'type': 'modifiedArrhenius', 'A': 0.0506, 'E': 26300.0, 'b': 2.7}, {'type': 'Constant', 'k': 1000.0}], 1500)
-        [114837571.22536749, 2310555.9199959813, 1000.0]
+        None
         """
+        if self.rates is None:
+            raise ValueError("Rates not initialized. Please call Chemkin().parse() to parse XML first.")
 
-        k = []
-        for reaction in rates:
+        self.k = []
+        for reaction in self.rates:
             if reaction['type'] == 'Arrhenius':
-                k.append(self.arrhenius(reaction['A'], reaction['E'], T))
+                self.k.append(self.k_arrhenius(reaction['A'], reaction['E'], T))
             elif reaction['type'] == 'modifiedArrhenius':
-                k.append(self.modified(reaction['A'], reaction['b'], reaction['E'], T))
+                self.k.append(self.k_modified(reaction['A'], reaction['b'], reaction['E'], T))
             elif reaction['type'] == 'Constant':
-                k.append(self.constant(reaction['k']))
-        return k
+                self.k.append(self.k_constant(reaction['k']))
 
-    def progress_u(self, k, x, v):
+    def progress_reaction(self, k, x, v):
         """Returns the progress rate of a single reaction.
 
         INPUTS
@@ -143,7 +183,7 @@ class chemkin:
             p = p * (x[i]**v[i])
         return k*p
 
-    def progress(self, k, x, v1):
+    def progress_system(self, x):
         """Returns the progress rate of a system of reactions.
 
         INPUTS
@@ -161,18 +201,18 @@ class chemkin:
         >>> progress_m([10,10],[1,2,1],[[1,2,0],[2,0,2]])
         [40, 10]
         """
-        m = len(v1)
-        if m != len(k):
+        m = len(self.v1)
+        if m != len(self.k):
             raise ValueError("Number of k does not much number of reactions!")
         n = len(x)
         w = []
         for i in range(m):
-            if len(v1[i]) != n:
+            if len(self.v1[i]) != n:
                 raise ValueError("Error in dimension of v values!")
-            w.append(self.progress_u(k[i],x,v1[i]))
+            w.append(self.progress_reaction(self.k[i],x,self.v1[i]))
         return w
 
-    def reaction(self, k, x, v1, v2):
+    def reaction_rates(self, x, T):
         """Returns the reaction rate of a system of reactions for each specie.
 
         INPUTS
@@ -191,18 +231,19 @@ class chemkin:
         >>> reaction([10,10],[1,2,1],[[1,2,0],[0,0,2]],[[0,0,1],[1,2,0]])
         [-30, -60, 20]
         """
-        w = self.progress(k,x,v1)
+        self.k_system(T)
+        w = self.progress_system(x)
         f = []
         m = len(w)
-        if m != len(k):
+        if m != len(self.k):
             raise ValueError("Number of k does not much number of reactions!")
         n = len(x)
         for i in range(n):
             f.append(0)
             for j in range(m):
-                if len(v1[j]) != n or len(v2[j]) != n:
+                if len(self.v1[j]) != n or len(self.v2[j]) != n:
                     raise ValueError("Error in dimension of v values!")
-                f[i] = f[i] + ((v2[j][i]-v1[j][i])*w[j])
+                f[i] = f[i] + ((self.v2[j][i]-self.v1[j][i])*w[j])
         return f
 
 
