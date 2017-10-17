@@ -208,4 +208,4 @@ class chemkin:
 
     def __repr__(self):
         class_name = type(self).__name__
-        return "{0} has params {1}".format(class_name, params)
+        return "This is {0}".format(class_name)
