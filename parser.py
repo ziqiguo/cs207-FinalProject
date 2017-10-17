@@ -18,7 +18,6 @@ def parseXML(file):
     v2: nested list of floats with shape m*n, where m is number of species and n is number of reactions in the system
         coefficients of reactants following the species array's order
     reaction_rate: list of floats with shape n, where n is the number of reactions in the system
-    
     """
     
     tree = ET.parse(file)
