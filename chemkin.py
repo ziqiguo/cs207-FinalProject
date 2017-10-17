@@ -56,7 +56,7 @@ class chemkin:
 
         # EXAMPLES
         # =========
-        # >>> chemkin().constant(10.0)
+        # >>> chemkin().k_constant(10.0)
         # 10.0
         """
         try:
@@ -80,7 +80,7 @@ class chemkin:
 
         # EXAMPLES
         # =========
-        # >>> chemkin().arrhenius(10,10,10)
+        # >>> chemkin().k_arrhenius(10,10,10)
         # 8.8667297841210573
         """
         try:
@@ -111,7 +111,7 @@ class chemkin:
 
         # EXAMPLES
         # =========
-        # >>> chemkin().modified(10**7,0.5,10**3,10**2)
+        # >>> chemkin().k_modified(10**7,0.5,10**3,10**2)
         # 30035490.889639609
         """
         try:
@@ -130,7 +130,7 @@ class chemkin:
         return a*(t**b)*np.exp(-e/(self.r*t))
 
     def k_system(self, T):
-        """Calculates reaction rates for a list of reactions.
+        """Calculates a list of k, one for each reaction.
 
         INPUTS
         =======
@@ -143,7 +143,7 @@ class chemkin:
         k: list of floats, has length m where m is the number of reactions
 
         # EXAMPLES
-        # >> chemkin().reaction_rates([{'type': 'Arrhenius', 'A': 35200000000.0, 'E': 71400.0}, {'type': 'modifiedArrhenius', 'A': 0.0506, 'E': 26300.0, 'b': 2.7}, {'type': 'Constant', 'k': 1000.0}], 1500)
+        # >> chemkin().k_system(1500)
         # [114837571.22536749, 2310555.9199959813, 1000.0]
         """
         if self.rates is None:
@@ -173,7 +173,7 @@ class chemkin:
 
         # EXAMPLES
         # =========
-        # >>> chemkin().progress_u(10,[1,2,3],[2,1,0])
+        # >>> chemkin().progress_reaction(10,[1,2,3],[2,1,0])
         # 20
         """
         if len(x) != len(v):
@@ -204,10 +204,6 @@ class chemkin:
         ========
         progress rate: list of progress rate of each reaction
 
-        # EXAMPLES
-        # =========
-        # >>> chemkin().progress([10,10],[1,2,1],[[1,2,0],[2,0,2]])
-        # [40, 10]
         """
 
         m = len(self.v1)
@@ -240,10 +236,6 @@ class chemkin:
         ========
         reaction rate: list of rate of consumption or formation of specie
 
-        # EXAMPLES
-        # =========
-        # >>> chemkin().reaction([10,10],[1,2,1],[[1,2,0],[0,0,2]],[[0,0,1],[1,2,0]])
-        # [-30, -60, 20]
         """
         self.k_system(T)
 
