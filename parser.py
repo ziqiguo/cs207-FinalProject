@@ -19,22 +19,6 @@ def parseXML(file):
         coefficients of reactants following the species array's order
     reaction_rate: list of floats with shape n, where n is the number of reactions in the system
     
-    EXAMPLES
-    ========
-    >> parseXML('rxns.xml')
-    ([[1.0, 0.0, 0.0],
-     [0.0, 1.0, 0.0],
-     [0.0, 0.0, 1.0],
-     [0.0, 1.0, 1.0],
-     [0.0, 0.0, 0.0],
-     [1.0, 0.0, 0.0]],
-     [[0.0, 1.0, 1.0],
-     [1.0, 0.0, 0.0],
-     [1.0, 1.0, 0.0],
-     [0.0, 0.0, 0.0],
-     [0.0, 0.0, 1.0],
-     [0.0, 0.0, 0.0]],
-     [114837571.22536749, 2310555.9199959813, 1000.0])
     """
     
     tree = ET.parse(file)
