@@ -19,9 +19,7 @@ Download package distribution from https://github.com/G8-CS207F17/cs207-FinalPro
 
 Packages needed: `numpy`, `xml`, `pytest` (`pip install PACKAGE_NAME`)
 
-Run unit test suites: run `pytest --cov --cov-report term-missing` in terminal
-
-run doctest suites: run `pytest --doctest-modules --cov --cov-report term-missing` in terminal
+Run test suites: run `pytest --doctest-modules --cov --cov-report term-missing` in terminal
 
 
 
