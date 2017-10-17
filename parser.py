@@ -13,11 +13,8 @@ def parseXML(file):
           
     RETURNS
     ========
-    v1: nested list of floats with shape m*n, where m is number of species and n is number of reactions in the system
-        coefficients of reactants following the species array's order
-    v2: nested list of floats with shape m*n, where m is number of species and n is number of reactions in the system
-        coefficients of reactants following the species array's order
-    reaction_rate: list of floats with shape n, where n is the number of reactions in the system
+    species_lst: list of species to fix order
+    reactions_dict: dictionary containing all relevant information for calculating reaction rates
     """
     
     tree = ET.parse(file)
@@ -26,8 +23,10 @@ def parseXML(file):
     # initialize variables
     reactions_dict = {'reactants': {}, 'products': {}, 'rates': []}
     coeffs_dict = []
+    species_lst = []
 
     for species in root.find('phase').find('speciesArray').text.split():
+        species_lst.append(species)
         reactions_dict['reactants'][species] = []
         reactions_dict['products'][species] = []
 
@@ -73,4 +72,4 @@ def parseXML(file):
             new_dict['k'] = float(coeffs.find('Constant').find('k').text)
             reactions_dict['rates'].append(new_dict)
 
-    return reactions_dict
+    return species_lst, reactions_dict

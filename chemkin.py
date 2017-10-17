@@ -33,15 +33,16 @@ class chemkin:
                [ 0.,  1.,  0.,  1.,  0.,  0.],
                [ 0.,  0.,  1.,  1.,  0.,  0.]])
         """
-        reactions_dict = parseXML('rxns.xml')
+        species_lst, reactions_dict = parseXML('rxns.xml')
         self.rates = reactions_dict['rates']
 
         self.v1 = []
         self.v2 = []
-        for key, value in reactions_dict['reactants'].items():
-            self.v1.append(value)
-        for key, value in reactions_dict['products'].items():
-            self.v2.append(value)
+        for species in species_lst:
+            self.v1.append(reactions_dict['reactants'][species])
+        for species in species_lst:
+            self.v2.append(reactions_dict['products'][species])
+        
 
         self.v1 = np.array(self.v1).T
         self.v2 = np.array(self.v2).T
