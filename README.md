@@ -25,4 +25,81 @@ Run test suites: run `pytest --doctest-modules --cov --cov-report term-missing` 
 
 Basic Usage and Examples
 ------------------------
-Provide a few examples on using your software in some common situations.  You may want to show how the code works with a small set of reactions.
+Let us have a set of reactions:
+```
+H + O2 => OH + O
+H2 + O => OH + H
+H2 + OH => H2O + H
+```
+
+We can add information about these reactions in an xml file of the form:
+```
+<?xml version="1.0"?>
+
+<ctml>
+
+    <phase>
+        <speciesArray> H O OH H2 H2O O2 </speciesArray>
+    </phase>
+
+    <reactionData id="test_mechanism">
+        <!-- reaction 01  -->
+        <reaction reversible="no" type="Elementary" id="reaction01">
+            <equation>H + O2 =] OH + O</equation>
+            <rateCoeff>
+                <Arrhenius>
+                    <A>3.52e+10</A>
+                    <E>7.14e+04</E>
+                </Arrhenius>
+            </rateCoeff>
+            <reactants>H:1 O2:1</reactants>
+            <products>OH:1 O:1</products>
+        </reaction>
+
+        <!-- reaction 02 -->
+        <reaction reversible="no" type="Elementary" id="reaction02">
+            <equation>H2 + O =] OH + H</equation>
+            <rateCoeff>
+                <modifiedArrhenius>
+                    <A>5.06e-2</A>
+                    <b>2.7</b>
+                    <E>2.63e+04</E>
+                </modifiedArrhenius>
+            </rateCoeff>
+            <reactants>H2:1 O:1</reactants>
+            <products>OH:1 H:1</products>
+        </reaction>
+
+        <!-- reaction 03 -->
+        <reaction reversible="no" type="Elementary" id="reaction03">
+            <equation>H2 + OH =] H2O + H</equation>
+            <rateCoeff>
+                <Constant>
+                    <k>1.0e+03</k>
+                </Constant>
+            </rateCoeff>
+            <reactants>H2:1 OH:1</reactants>
+            <products>H2O:1 H:1</products>
+        </reaction>
+    </reactionData>
+
+</ctml>
+```
+
+We import the chemical kinetics library as follows:
+```
+from chemkin import *
+```
+
+We can parse this xml file about reactions using the code below:
+```
+testcase1 = chemkin()
+testcase1.parse(filename)
+```
+
+We input the concentrations of each species and the temperature at which reactions occur. The reaction rates of each species in the system can be given as:
+```
+x = [1,1,1,1,1,1]
+T = 1500
+rates = testcase1.reaction_rates(x, T)
+```
