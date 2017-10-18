@@ -1,6 +1,6 @@
 from chemkin import *
 
-fname = 'rxns.xml'
+fname = 'test_cases/rxns.xml'
 
 def test_k_const():
     c = chemkin()

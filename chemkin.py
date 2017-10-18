@@ -27,13 +27,13 @@ class chemkin:
         EXAMPLES
         ========
         >>> c = chemkin()
-        >>> c.parse('rxns.xml')
+        >>> c.parse('test_cases/rxns.xml')
         >>> c.v1
         array([[ 1.,  0.,  0.,  0.,  0.,  1.],
                [ 0.,  1.,  0.,  1.,  0.,  0.],
                [ 0.,  0.,  1.,  1.,  0.,  0.]])
         """
-        species_lst, reactions_dict = parseXML('rxns.xml')
+        species_lst, reactions_dict = parseXML(file)
         self.rates = reactions_dict['rates']
 
         self.v1 = []
@@ -150,7 +150,7 @@ class chemkin:
 
         EXAMPLES
         >>> c = chemkin()
-        >>> c.parse('rxns.xml')
+        >>> c.parse('test_cases/rxns.xml')
         >>> c.k_system(1500)
         >>> c.k
         [114837571.22536749, 2310555.9199959813, 1000.0]
@@ -213,7 +213,7 @@ class chemkin:
         EXAMPLES
         ========
         >>> c = chemkin()
-        >>> c.parse('rxns.xml')
+        >>> c.parse('test_cases/rxns.xml')
         >>> c.k_system(1500)
         >>> c.progress_system([2., 1., .5, 1., 1., 1.])
         [229675142.45073497, 2310555.9199959813, 500.0]
@@ -252,7 +252,7 @@ class chemkin:
         EXAMPLES
         ========
         >>> c = chemkin()
-        >>> c.parse('rxns.xml')
+        >>> c.parse('test_cases/rxns.xml')
         >>> c.reaction_rates([2., 1., .5, 1., 1., 1.], 1500)
         [-227364086.53073898, 227364586.53073898, 231985198.37073097, -2311055.9199959813, 500.0, -229675142.45073497]
         """
