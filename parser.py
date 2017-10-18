@@ -60,22 +60,31 @@ def parseXML(file):
         if coeffs.find('Arrhenius'):
             new_dict = {}
             new_dict['type'] = 'Arrhenius'
-            new_dict['A'] = float(coeffs.find('Arrhenius').find('A').text)
-            new_dict['E'] = float(coeffs.find('Arrhenius').find('E').text)
+            try:
+                new_dict['A'] = float(coeffs.find('Arrhenius').find('A').text)
+                new_dict['E'] = float(coeffs.find('Arrhenius').find('E').text)
+            except:
+                raise ValueError('Missing coefficients. Please check your XML file.')
             reactions_dict['rates'].append(new_dict)
             
         if coeffs.find('modifiedArrhenius'):
             new_dict = {}
             new_dict['type'] = 'modifiedArrhenius'
-            new_dict['A'] = float(coeffs.find('modifiedArrhenius').find('A').text)
-            new_dict['E'] = float(coeffs.find('modifiedArrhenius').find('E').text)
-            new_dict['b'] = float(coeffs.find('modifiedArrhenius').find('b').text)
+            try:
+                new_dict['A'] = float(coeffs.find('modifiedArrhenius').find('A').text)
+                new_dict['E'] = float(coeffs.find('modifiedArrhenius').find('E').text)
+                new_dict['b'] = float(coeffs.find('modifiedArrhenius').find('b').text)
+            except:
+                raise ValueError('Missing coefficients. Please check your XML file.')
             reactions_dict['rates'].append(new_dict)
 
         if coeffs.find('Constant'):
             new_dict = {}
             new_dict['type'] = 'Constant'
-            new_dict['k'] = float(coeffs.find('Constant').find('k').text)
+            try:
+                new_dict['k'] = float(coeffs.find('Constant').find('k').text)
+            except:
+                raise ValueError('Missing coefficients. Please check your XML file.')
             reactions_dict['rates'].append(new_dict)
 
     return species_lst, reactions_dict

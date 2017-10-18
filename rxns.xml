@@ -27,7 +27,7 @@
             <rateCoeff>
                 <modifiedArrhenius>
                     <A>5.06e-2</A>
-                    <b>2.7</b>
+                    <!-- <b>2.7</b> -->
                     <E>2.63e+04</E>
                 </modifiedArrhenius>
             </rateCoeff>
@@ -44,17 +44,6 @@
                 </Constant>
             </rateCoeff>
             <reactants>H2:1 OH:1</reactants>
-            <products>H2O:1 H:1</products>
-        </reaction>
-
-        <reaction reversible="no" type="Elementary" id="reaction03">
-            <equation>H2 + OH =] H2O + H</equation>
-            <rateCoeff>
-                <Constant>
-                    <k>1.0e+03</k>
-                </Constant>
-            </rateCoeff>
-            <reactants>S2:1 OH:1</reactants>
             <products>H2O:1 H:1</products>
         </reaction>
 
