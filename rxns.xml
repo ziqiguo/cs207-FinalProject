@@ -47,6 +47,18 @@
             <products>H2O:1 H:1</products>
         </reaction>
 
+        <reaction reversible="no" type="Elementary" id="reaction03">
+            <equation>H2 + OH =] H2O + H</equation>
+            <rateCoeff>
+                <Constant>
+                    <k>1.0e+03</k>
+                </Constant>
+            </rateCoeff>
+            <reactants>S2:1 OH:1</reactants>
+            <products>H2O:1 H:1</products>
+        </reaction>
+
+
     </reactionData>
 
 </ctml>
