@@ -24,6 +24,7 @@ def parseXML(file):
     reactions_dict = {'reactants': {}, 'products': {}, 'rates': []}
     coeffs_dict = []
     species_lst = []
+    reversible_lst = []
 
     for species in root.find('phase').find('speciesArray').text.split():
         species_lst.append(species)
@@ -31,6 +32,9 @@ def parseXML(file):
         reactions_dict['products'][species] = []
 
     for child in root.find('reactionData').findall('reaction'):
+
+        # Record whether reaction is reversible
+        reversible_lst.append(child.get('reversible'))
 
         # Parse reactants and products
         species = list(reactions_dict['products'].keys())
@@ -87,4 +91,4 @@ def parseXML(file):
                 raise ValueError('Missing coefficients. Please check your XML file.')
             reactions_dict['rates'].append(new_dict)
 
-    return species_lst, reactions_dict
+    return species_lst, reactions_dict, reversible_lst

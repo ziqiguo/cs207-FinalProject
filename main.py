@@ -1,12 +1,23 @@
+import numpy as np
 from chemkin import *
 from parser import *
-import numpy as np
+
 
 # Input variables
-x = [2., 1., .5, 1., 1., 1.]
+x1 = [2., 1., .5, 1., 1., 1.]
+x2 = [2., 1., .5, 1., 1., 1., .5, 1.]
 T = 1500
-fname = 'test_cases/rxns.xml'
 
-testcase1 = chemkin()
-testcase1.parse(fname)
-print(testcase1.reaction_rates(x, T))
+
+fname1 = 'test_cases/rxns.xml'
+fname2 = 'test_cases/rxnset_long.xml'
+fname3 = 'test_cases/rxns_reversible.xml'
+
+c = chemkin(fname1)
+print(c.reaction_rates(x1, T))
+
+c = chemkin(fname2)
+print(c.reaction_rates(x2, T))
+
+c = chemkin(fname3)
+print(c.reaction_rates(x2, T))
