@@ -24,6 +24,22 @@ class backward:
         self.gamma = np.sum(self.nuij, axis=1)
 
     def Cp_over_R(self, T):
+        """Returns specific heat of each specie given by the NASA polynomials.
+
+        INPUTS
+        =======
+        T: float, environment temperature
+
+        RETURNS
+        =======
+        Cp_R: array of float, specific heat of each specie given by the NASA polynomials
+
+        EXAMPLES
+        ========
+        >>> b = backward([[1,1]], [[1,1,1,1,1,1,1]])
+        >>> b.Cp_over_R(200)
+        array([  1.60804020e+09])
+        """
 
         a = self.nasa7_coeffs
 
@@ -33,11 +49,23 @@ class backward:
         return Cp_R
 
     def H_over_RT(self, T):
+        """Returns the enthalpy of each specie given by the NASA polynomials.
 
-        # WARNING:  This line will depend on your own data structures!
-        # Be careful to get the correct coefficients for the appropriate 
-        # temperature range.  That is, for T <= Tmid get the low temperature 
-        # range coeffs and for T > Tmid get the high temperature range coeffs.
+        INPUTS
+        =======
+        T: float, environment temperature
+
+        RETURNS
+        =======
+        H_over_RT: array of float, the enthalpy of each specie given by the NASA polynomials
+
+        EXAMPLES
+        ========
+        >>> b = backward([[1,1]], [[1,1,1,1,1,1,1]])
+        >>> b.H_over_RT(200)
+        array([  3.22013434e+08])
+        """
+
         a = self.nasa7_coeffs
 
         H_RT = (a[:,0] + a[:,1] * T / 2.0 + a[:,2] * T**2.0 / 3.0 
@@ -46,8 +74,23 @@ class backward:
 
         return H_RT
                
-
     def S_over_R(self, T):
+        """Returns the entropy of each specie given by the NASA polynomials.
+
+        INPUTS
+        =======
+        T: float, environment temperature
+
+        RETURNS
+        =======
+        S_over_R: array of float, the entropy of each specie given by the NASA polynomials
+
+        EXAMPLES
+        ========
+        >>> b = backward([[1,1]], [[1,1,1,1,1,1,1]])
+        >>> b.S_over_R(200)
+        array([  4.02686873e+08])
+        """
 
         a = self.nasa7_coeffs
 
@@ -57,6 +100,30 @@ class backward:
         return S_R
 
     def backward_coeffs(self, kf, T):
+        """Returns the backward reaction rate coefficient for reach reaction.
+
+        INPUTS
+        =======
+        kf: array of float, forward reaction rate coefficients for each reaction
+        T: float, environment temperature
+
+        RETURNS
+        =======
+        kb: array of float, backward reaction rate coefficients for each reaction
+
+        EXAMPLES
+        ========
+        >>> c = chemkin('test_cases/rxns_reversible.xml')
+        >>> c.parseNASA(1500)
+        >>> c.k_system(1500)
+        >>> b = backward(c.v2 - c.v1, c.nasa)
+        >>> b.backward_coeffs(c.kf, 1500)
+        array([  7.86833492e+14,   8.03264045e+12,   2.92668218e+11,
+                 8.02082564e+13,   3.94788406e+05,   2.48917653e+07,
+                 7.15609711e+05,   2.18068945e+04,   2.43077455e+02,
+                 3.43831179e+10,   1.82793668e+10])
+
+        """
 
         # Change in enthalpy and entropy for each reaction
         delta_H_over_RT = np.dot(self.nuij, self.H_over_RT(T))
@@ -103,8 +170,7 @@ class chemkin:
 
         EXAMPLES
         ========
-        >>> c = chemkin()
-        >>> c.parse('test_cases/rxns.xml')
+        >>> c = chemkin('test_cases/rxns.xml')
         >>> c.v1
         array([[ 1.,  0.,  0.,  0.,  0.,  1.],
                [ 0.,  1.,  0.,  1.,  0.,  0.],
@@ -125,8 +191,27 @@ class chemkin:
         self.v2 = np.array(self.v2).T
 
     def parseNASA(self, T, feed=None):
+        """Reads the NASA polynomials from the database nasapoly.sqlite and stores them in self.nasa
+        
+        INPUTS
+        =======
+        T: float, environment temperature
+        feed: optional, polynomials to be directly passed to self.nasa
+
+        RETURNS
+        =======
+        None. Modifies self.nasa.
+
+        EXAMPLES
+        ========
+        >>> c = chemkin('test_cases/rxns_reversible.xml')
+        >>> c.parseNASA(1500)
+        >>> c.nasa
+        [(2.50000001, -2.30842973e-11, 1.61561948e-14, -4.73515235e-18, 4.98197357e-22, 25473.6599, -0.446682914), (2.56942078, -8.59741137e-05, 4.19484589e-08, -1.00177799e-11, 1.22833691e-15, 29217.5791, 4.78433864), (3.09288767, 0.000548429716, 1.26505228e-07, -8.79461556e-11, 1.17412376e-14, 3858.657, 4.4766961), (3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14, -950.158922, -3.20502331), (3.03399249, 0.00217691804, -1.64072518e-07, -9.7041987e-11, 1.68200992e-14, -30004.2971, 4.9667701), (3.28253784, 0.00148308754, -7.57966669e-07, 2.09470555e-10, -2.16717794e-14, -1088.45772, 5.45323129), (4.0172109, 0.00223982013, -6.3365815e-07, 1.1424637e-10, -1.07908535e-14, 111.856713, 3.78510215), (4.16500285, 0.00490831694, -1.90139225e-06, 3.71185986e-10, -2.87908305e-14, -17861.7877, 2.91615662)]
+
+        """
         if feed is None:
-            db = sqlite3.connect('test_cases/thermo.sqlite')
+            db = sqlite3.connect('nasapoly.sqlite')
             cursor = db.cursor()
             low = {i[0]: i for i in cursor.execute('''SELECT * FROM LOW''').fetchall()}
             high = {i[0]: i for i in cursor.execute('''SELECT * FROM HIGH''').fetchall()}
@@ -151,7 +236,7 @@ class chemkin:
 
         EXAMPLES
         =========
-        >>> chemkin().k_constant(10.0)
+        >>> chemkin('test_cases/rxns.xml').k_constant(10.0)
         10.0
         """
         try:
@@ -175,7 +260,7 @@ class chemkin:
 
         EXAMPLES
         =========
-        >>> chemkin().k_arrhenius(10,10,10)
+        >>> chemkin('test_cases/rxns.xml').k_arrhenius(10,10,10)
         8.8667297841210573
         """
         try:
@@ -206,7 +291,7 @@ class chemkin:
 
         EXAMPLES
         =========
-        >>> chemkin().k_modified(10**7,0.5,10**3,10**2)
+        >>> chemkin('test_cases/rxns.xml').k_modified(10**7,0.5,10**3,10**2)
         30035490.889639609
         """
         if isinstance(b, complex):
@@ -238,10 +323,9 @@ class chemkin:
         k: list of floats, has length m where m is the number of reactions
 
         EXAMPLES
-        >>> c = chemkin()
-        >>> c.parse('test_cases/rxns.xml')
+        >>> c = chemkin('test_cases/rxns.xml')
         >>> c.k_system(1500)
-        >>> c.k
+        >>> c.kf
         [114837571.22536749, 2310555.9199959813, 1000.0]
         """
         if self.rates is None:
@@ -261,8 +345,8 @@ class chemkin:
 
         INPUTS
         =======
-        k: int or float, the reaction rate coefficient
         x: list of concentration of each species
+        kf: int or float, the reaction rate coefficient
         v: list of Stoichiometric coefficients of reactants
 
         RETURNS
@@ -271,7 +355,7 @@ class chemkin:
 
         EXAMPLES
         =========
-        >>> chemkin().progress_reaction(10,[1,2,3],[2,1,0])
+        >>> chemkin('test_cases/rxns.xml').progress_reaction([1,2,3], 10, [2,1,0])
         20
         """
         if len(x) != len(v1):
@@ -295,7 +379,7 @@ class chemkin:
 
         return progress_f - progress_b
 
-    def progress_system(self, x, T):
+    def progress_system(self, x, T=None):
         """Returns the progress rate of a system of reactions.
 
         INPUTS
@@ -308,8 +392,7 @@ class chemkin:
         
         EXAMPLES
         ========
-        >>> c = chemkin()
-        >>> c.parse('test_cases/rxns.xml')
+        >>> c = chemkin('test_cases/rxns.xml')
         >>> c.k_system(1500)
         >>> c.progress_system([2., 1., .5, 1., 1., 1.])
         [229675142.45073497, 2310555.9199959813, 500.0]
@@ -359,12 +442,15 @@ class chemkin:
         
         EXAMPLES
         ========
-        >>> c = chemkin()
-        >>> c.parse('test_cases/rxns.xml')
+        >>> c = chemkin('test_cases/rxns.xml')
         >>> c.reaction_rates([2., 1., .5, 1., 1., 1.], 1500)
         [-227364086.53073898, 227364586.53073898, 231985198.37073097, -2311055.9199959813, 500.0, -229675142.45073497]
         """
-        self.parseNASA(T)
+        try:
+            self.parseNASA(T)
+        except:
+            raise ValueError("NASA parsing failed. Please check your database.")
+            
         self.k_system(T)
 
         if np.array(self.v1).shape != np.array(self.v2).shape:
