@@ -40,16 +40,10 @@ def parseXML(file):
         species = list(reactions_dict['products'].keys())
         for reactant in child.find('reactants').text.split():
             key, value = reactant.split(':')
-            try:
-                reactions_dict['reactants'][key].append(float(value))
-            except:
-                raise ValueError('Unknown species. Please check if your XML file specifies all species.')
+            reactions_dict['reactants'][key].append(float(value))
             species.remove(key)
         for reactant in species:
-            try:
-                reactions_dict['reactants'][reactant].append(0.0)
-            except:
-                raise ValueError('Unknown species. Please check if your XML file specifies all species.')
+            reactions_dict['reactants'][reactant].append(0.0)
 
         species = list(reactions_dict['products'].keys())
         for product in child.find('products').text.split():

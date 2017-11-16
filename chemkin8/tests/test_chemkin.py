@@ -64,13 +64,6 @@ def test_k_mod_float():
     except ValueError as err:
         assert(type(err) == ValueError)
 
-def test_system_k():
-    c = chemkin.chemkin(fname)
-    try:
-        c.k_system(1500)
-    except ValueError as err:
-        assert(type(err) == ValueError)
-
 def test_progress_reac_k0():
     c = chemkin.chemkin(fname)
     try:
