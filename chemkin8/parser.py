@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from chemkin import *
+from chemkin8.chemkin import *
 import numpy as np
 
 def parseXML(file):
