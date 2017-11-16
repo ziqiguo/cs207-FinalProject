@@ -154,7 +154,7 @@ class chemkin:
         self.kb = None
         self.reversible = None
         self.nasa = []
-        self.file = '/'.join(file.split('/')[:-1])
+        self.file = os.path.dirname(os.path.realpath(__file__))
         self.parse(file)
 
     def parse(self, file):
